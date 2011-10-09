@@ -1,4 +1,5 @@
 #include "testApp.h"
+#include <string.h>
 
 
 //--------------------------------------------------------------
@@ -23,7 +24,7 @@ void testApp::setup(){
 	for (int i=0; i < nBandsToGet; i++)
 		updatesUntilTriggerable[i] = 0;
 
-	oscPeakTriggerThresh = 0.15f;
+	oscPeakTriggerThresh = 0.17f;
 }
 
 
@@ -64,18 +65,42 @@ void testApp::draw(){
 	//rectangle where fft results go
 	ofEnableAlphaBlending();
 	ofSetColor(255,255,255,100);
-	ofRect(100, ofGetHeight() - 300, 5 * 128, 200);
+	int fftRectHeight = 200;
+	int fftRectX = 100;
+	int fftRectY = ofGetHeight() - 100;
+	int fftRectWidth = 5 * 128;
+	ofRect(fftRectX, ofGetHeight() - 300, 5 * 128, fftRectHeight);
 	ofDisableAlphaBlending();
 
 	// draw the fft results:
 	ofSetColor(255, 255, 255, 255);
 
-	float width = (float)(5*128) / nBandsToGet;
+	float bandWidth = (float)(fftRectWidth) / nBandsToGet;
 	for (int i = 0; i < nBandsToGet; i++){
 		// (we use negative height here, because we want to flip them
 		// because the top corner is 0,0)
-		ofRect(100 + i * width, ofGetHeight() - 100, width, -(fftSmoothed[i] * 200));
+		ofRect(fftRectX + i * bandWidth, fftRectY, bandWidth, -(fftSmoothed[i] * fftRectHeight));
 	}
+
+	//draw the current threshold line
+	ofSetColor(5, 255, 5, 255);
+	ofRect(fftRectX, fftRectY - (oscPeakTriggerThresh * fftRectHeight), fftRectWidth, 5);
+
+	//for OSC trigger thresh
+	ofSetColor(ofColor::white);
+	string outstring = "peak detect threshold is ";
+	char converted[10] = ""; 
+	sprintf(converted, "%.2f", oscPeakTriggerThresh);
+	outstring += converted;
+	outstring += ". Press +/- to change it.";
+	ofDrawBitmapString(outstring, 100, 20);
+	//for num bands
+	outstring = "Number of bands is ";
+	sprintf(converted, "%3d", nBandsToGet);
+	outstring += converted;
+	outstring += ". Press q/a to raise or lower it.";
+	ofDrawBitmapString(outstring, 100, 40);
+
 
 	//rectangle to indicate if OSC is sent
 	ofEnableAlphaBlending();
@@ -83,11 +108,14 @@ void testApp::draw(){
 	ofRect(100, 100, 5 * 128, 200);
 	ofDisableAlphaBlending();
 
+
+
 	//indicate if OSC peak-hit message has been sent
-	ofSetColor(0, 126, 0);
 	for (int i = 0; i < nBandsToGet; i++){
-		if (updatesUntilTriggerable[i] > 0)
-			ofDrawBitmapString("something just fired",	280, 20 );
+		if (updatesUntilTriggerable[i] > 0) {
+			//ofDrawBitmapString(outstring, 280, 20 );
+		}
+		
 	}
 
 }
@@ -95,6 +123,17 @@ void testApp::draw(){
 
 //--------------------------------------------------------------
 void testApp::keyPressed  (int key){ 
+	if( key == '+' ) {
+		oscPeakTriggerThresh += 0.01f;
+		if (oscPeakTriggerThresh > 1.0f)
+			oscPeakTriggerThresh = 1.0f;
+	}
+	else if( key == '-' ) {
+		oscPeakTriggerThresh -= 0.01f;
+		if (oscPeakTriggerThresh < 0.0f)
+			oscPeakTriggerThresh = 0.0f;
+	}
+
 }
 
 //--------------------------------------------------------------
