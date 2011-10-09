@@ -18,7 +18,7 @@ void testApp::setup(){
 		fftSmoothed[i] = 0;
 	}
 	
-	nBandsToGet = 4;
+	nBandsToGet = 100;
 	minUpdatesBeforeRetrigger = 100;
 	updatesUntilTriggerable = (int *) malloc(nBandsToGet * sizeof(int));
 	for (int i=0; i < nBandsToGet; i++)
@@ -84,7 +84,7 @@ void testApp::draw(){
 
 	//draw the current threshold line
 	ofSetColor(5, 255, 5, 255);
-	ofRect(fftRectX, fftRectY - (oscPeakTriggerThresh * fftRectHeight), fftRectWidth, 5);
+	ofRect(fftRectX, fftRectY - (oscPeakTriggerThresh * fftRectHeight), fftRectWidth, 4);
 
 	//for OSC trigger thresh
 	ofSetColor(ofColor::white);
@@ -133,7 +133,16 @@ void testApp::keyPressed  (int key){
 		if (oscPeakTriggerThresh < 0.0f)
 			oscPeakTriggerThresh = 0.0f;
 	}
-
+	else if( key == 'q' ) {
+		nBandsToGet += 2;
+		if (nBandsToGet  > 100)
+			nBandsToGet = 100;
+	}
+	else if( key == 'a' ) {
+		nBandsToGet -= 2;
+		if (nBandsToGet  < 2)
+			nBandsToGet = 2;
+	}
 }
 
 //--------------------------------------------------------------

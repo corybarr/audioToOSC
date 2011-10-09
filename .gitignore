@@ -1,5 +1,7 @@
 *sdf
-sound*pbd
+*pdb
 sound*exe
 obj/Debug/*
+*obj
+*log
 
